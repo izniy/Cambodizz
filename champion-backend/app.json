@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
@@ -29,8 +27,8 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "SUPABASE_URL": "https://your-project-id.supabase.co",
-      "SUPABASE_ANON_KEY": "your-anon-key"
+      "SUPABASE_URL": "https://yccsbowfmqkwqlmavqam.supabase.co",
+      "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljY3Nib3dmbXFrd3FsbWF2cWFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNjY4NzUsImV4cCI6MjA2NTY0Mjg3NX0._qdUuo_X4grxkebqn9qGW01p2-UOh2mM3iY0xY6KVdc"
     }
   }
 }
