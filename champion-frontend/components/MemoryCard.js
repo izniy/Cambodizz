@@ -46,8 +46,8 @@ export default function MemoryCard({ word, language, isFlipped, isMatched, onPre
 
 const styles = StyleSheet.create({
   card: {
-    width: 120,
-    height: 160,
+    width: 80,
+    height: 100,
     margin: 8,
     borderRadius: 16,
     justifyContent: 'center',
@@ -62,24 +62,24 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   text: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
     padding: 10,
     color: '#2D3748',
   },
   flippedText: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#FFFFFF',
   },
   hiddenText: {
-    fontSize: 36, // Larger size for the question mark
+    fontSize: 28,
   },
   matchedCard: {
     borderWidth: 2,
-    borderColor: '#68D391', // Green border for matched cards
+    borderColor: '#68D391',
   },
   matchedText: {
-    color: '#276749', // Darker green for matched text
+    color: '#276749',
   },
 }); 

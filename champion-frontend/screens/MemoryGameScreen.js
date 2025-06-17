@@ -165,8 +165,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    gap: 8,
+    paddingHorizontal: 10,
+    paddingTop: 20,
+    gap: 6
   },
 }); 
