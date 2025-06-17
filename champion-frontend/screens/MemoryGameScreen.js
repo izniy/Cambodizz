@@ -26,13 +26,27 @@ export default function MemoryGameScreen() {
   // Calculate progress for the progress bar
   const progress = matchedPairs / 10; // 10 total pairs
 
+  const startPreviewPhase = (initialCards) => {
+    // Start with all cards face up
+    const faceUpCards = initialCards.map(card => ({ ...card, isFlipped: true }));
+    setCards(faceUpCards);
+
+    // After 10 seconds, flip unmatched cards face down
+    setTimeout(() => {
+      setCards(prevCards =>
+        prevCards.map(card =>
+          card.isMatched ? card : { ...card, isFlipped: false }
+        )
+      );
+    }, 10000);
+  };
+
   const resetGame = async () => {
     setShowCelebration(false);
     setMatchedPairs(0);
     setFlippedCards([]);
     setIsCheckingMatch(false);
     
-    // Fetch and shuffle new cards
     try {
       const vocabularyWords = await getVocabularyWords();
       const first10Words = vocabularyWords.slice(0, 10);
@@ -58,7 +72,7 @@ export default function MemoryGameScreen() {
         ];
       });
       const shuffledCards = shuffleArray([...cardPairs]);
-      setCards(shuffledCards);
+      startPreviewPhase(shuffledCards);
     } catch (err) {
       console.error('Error resetting game:', err);
       setError('Failed to reset game');
@@ -94,8 +108,8 @@ export default function MemoryGameScreen() {
         });
 
         const shuffledCards = shuffleArray([...cardPairs]);
-        setCards(shuffledCards);
         setIsLoading(false);
+        startPreviewPhase(shuffledCards);
       } catch (err) {
         console.error('Error loading vocabulary cards:', err);
         setError('Failed to load vocabulary cards');
