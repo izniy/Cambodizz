@@ -32,12 +32,16 @@ export default function MemoryCard({ word, language, isFlipped, isMatched, onPre
       disabled={isFlipped || isMatched}
       activeOpacity={0.8}
     >
-      <Text style={[
-        styles.text,
-        isFlipped && !isMatched && styles.flippedText,
-        isMatched && styles.matchedText,
-        !isFlipped && styles.hiddenText
-      ]}>
+      <Text
+        adjustsFontSizeToFit
+        numberOfLines={1}
+        style={[
+          styles.text,
+          isFlipped && !isMatched && styles.flippedText,
+          isMatched && styles.matchedText,
+          !isFlipped && styles.hiddenText
+        ]}
+      >
         {getDisplayText()}
       </Text>
     </TouchableOpacity>
