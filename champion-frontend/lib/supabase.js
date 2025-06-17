@@ -2,7 +2,11 @@ import { createClient } from '@supabase/supabase-js';
 import Constants from 'expo-constants';
 import 'react-native-url-polyfill/auto'; // required for RN support
 
-const supabaseUrl = Constants.expoConfig?.extra?.SUPABASE_URL;
-const supabaseAnonKey = Constants.expoConfig?.extra?.SUPABASE_ANON_KEY;
+const { SUPABASE_URL, SUPABASE_ANON_KEY } =
+  Constants.expoConfig?.extra || Constants.manifest?.extra || {};
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey); 
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Supabase URL or Key is missing!');
+}
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
