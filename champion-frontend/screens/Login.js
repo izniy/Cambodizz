@@ -10,6 +10,13 @@ const Login = ({ navigation }) => {
       >
         <Text style={styles.buttonText}>Go to Learning</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("MemoryGame")}
+      >
+        <Text style={styles.buttonText}>Go to Game</Text>
+      </TouchableOpacity>
     </View>
   );
 };
