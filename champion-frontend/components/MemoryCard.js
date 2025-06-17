@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, Platform } from 'react-native';
 
 export default function MemoryCard({ word, language, isFlipped, isMatched, onPress }) {
   // Determine background color based on language and match status
@@ -8,7 +8,7 @@ export default function MemoryCard({ word, language, isFlipped, isMatched, onPre
       return '#A8E6CF'; // Light green for matched cards
     }
     if (!isFlipped) {
-      return '#F3F4F6'; // Light grey for face-down cards
+      return '#D1C4E9'; // Light purple for face-down cards
     }
     return language === 'english' ? '#4FACFE' : '#FFB347'; // Blue for English, Orange for Cham
   };
@@ -71,6 +71,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     padding: 10,
     color: '#2D3748',
+    fontFamily: Platform.select({
+      ios: 'Chalkboard SE',
+      android: 'Comic Sans MS',
+      default: 'System'
+    })
   },
   flippedText: {
     fontSize: 16,

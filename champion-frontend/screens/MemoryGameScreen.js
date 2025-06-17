@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Platform } from 'react-native';
 import { getVocabularyWords } from '../lib/getVocabularyWords';
 import MemoryCard from '../components/MemoryCard';
 
@@ -75,10 +75,11 @@ export default function MemoryGameScreen() {
     }
 
     // Flip the card
-    const updatedCards = cards.map(card =>
-      card.id === pressedCard.id ? { ...card, isFlipped: true } : card
+    setCards(prevCards =>
+      prevCards.map(card =>
+        card.id === pressedCard.id ? { ...card, isFlipped: true } : card
+      )
     );
-    setCards(updatedCards);
 
     const newFlippedCards = [...flippedCards, pressedCard];
     setFlippedCards(newFlippedCards);
@@ -93,10 +94,11 @@ export default function MemoryGameScreen() {
 
       if (isMatch) {
         // Mark both cards as matched
-        const matchedCards = cards.map(card =>
-          card.pairId === firstCard.pairId ? { ...card, isMatched: true } : card
+        setCards(prevCards =>
+          prevCards.map(card =>
+            card.pairId === firstCard.pairId ? { ...card, isMatched: true } : card
+          )
         );
-        setCards(matchedCards);
         setFlippedCards([]); // Reset flipped cards
       } else {
         // Cards don't match - flip them back after delay
@@ -119,7 +121,7 @@ export default function MemoryGameScreen() {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text>Loading cards...</Text>
+        <Text style={styles.loadingText}>Loading cards...</Text>
       </View>
     );
   }
@@ -127,39 +129,43 @@ export default function MemoryGameScreen() {
   if (error) {
     return (
       <View style={styles.container}>
-        <Text>{error}</Text>
+        <Text style={styles.errorText}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.gridContainer}>
-        {cards.map(card => (
-          <MemoryCard
-            key={card.id}
-            word={card.word}
-            language={card.language}
-            isFlipped={card.isFlipped}
-            isMatched={card.isMatched}
-            onPress={() => handleCardPress(card)}
-          />
-        ))}
-      </View>
-    </ScrollView>
+    <View style={styles.container}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.gridContainer}>
+          {cards.map(card => (
+            <MemoryCard
+              key={card.id}
+              word={card.word}
+              language={card.language}
+              isFlipped={card.isFlipped}
+              isMatched={card.isMatched}
+              onPress={() => handleCardPress(card)}
+            />
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    backgroundColor: '#E1F5FE', // Light sky blue background
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
+    paddingVertical: 20,
   },
   gridContainer: {
     flexDirection: 'row',
@@ -168,5 +174,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 20,
     gap: 6
+  },
+  loadingText: {
+    fontSize: 18,
+    textAlign: 'center',
+    fontFamily: Platform.select({
+      ios: 'Chalkboard SE',
+      android: 'Comic Sans MS',
+      default: 'System'
+    }),
+    color: '#2D3748',
+    marginTop: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#E53E3E',
+    marginTop: 20,
   },
 }); 
