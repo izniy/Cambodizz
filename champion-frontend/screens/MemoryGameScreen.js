@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Platform } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, Platform, Animated, TouchableOpacity } from 'react-native';
 import { getVocabularyWords } from '../lib/getVocabularyWords';
 import MemoryCard from '../components/MemoryCard';
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 // Fisher-Yates shuffle algorithm
 const shuffleArray = (array) => {
@@ -18,15 +19,58 @@ export default function MemoryGameScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCheckingMatch, setIsCheckingMatch] = useState(false);
+  const [matchedPairs, setMatchedPairs] = useState(0);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const confettiRef = useRef(null);
+
+  // Calculate progress for the progress bar
+  const progress = matchedPairs / 10; // 10 total pairs
+
+  const resetGame = async () => {
+    setShowCelebration(false);
+    setMatchedPairs(0);
+    setFlippedCards([]);
+    setIsCheckingMatch(false);
+    
+    // Fetch and shuffle new cards
+    try {
+      const vocabularyWords = await getVocabularyWords();
+      const first10Words = vocabularyWords.slice(0, 10);
+      const cardPairs = first10Words.flatMap(word => {
+        const pairId = word.id;
+        return [
+          {
+            id: `${pairId}-english`,
+            word: word.english_name,
+            language: 'english',
+            pairId,
+            isFlipped: false,
+            isMatched: false
+          },
+          {
+            id: `${pairId}-cham`,
+            word: word.cham_name,
+            language: 'cham',
+            pairId,
+            isFlipped: false,
+            isMatched: false
+          }
+        ];
+      });
+      const shuffledCards = shuffleArray([...cardPairs]);
+      setCards(shuffledCards);
+    } catch (err) {
+      console.error('Error resetting game:', err);
+      setError('Failed to reset game');
+    }
+  };
 
   useEffect(() => {
     async function loadVocabularyCards() {
       try {
-        // Fetch vocabulary words from Supabase
         const vocabularyWords = await getVocabularyWords();
         const first10Words = vocabularyWords.slice(0, 10);
 
-        // Create card pairs from vocabulary words
         const cardPairs = first10Words.flatMap(word => {
           const pairId = word.id;
           return [
@@ -49,7 +93,6 @@ export default function MemoryGameScreen() {
           ];
         });
 
-        // Shuffle the cards
         const shuffledCards = shuffleArray([...cardPairs]);
         setCards(shuffledCards);
         setIsLoading(false);
@@ -62,6 +105,25 @@ export default function MemoryGameScreen() {
 
     loadVocabularyCards();
   }, []);
+
+  // Update matched pairs count and check for game completion
+  const updateMatchedPairs = (updatedCards) => {
+    const uniqueMatchedPairs = new Set(
+      updatedCards
+        .filter(card => card.isMatched)
+        .map(card => card.pairId)
+    ).size;
+    
+    setMatchedPairs(uniqueMatchedPairs);
+
+    // Check for game completion
+    if (uniqueMatchedPairs === 10) {
+      setTimeout(() => {
+        setShowCelebration(true);
+        confettiRef.current?.start();
+      }, 500);
+    }
+  };
 
   const handleCardPress = (pressedCard) => {
     // Ignore if card is already flipped, matched, or we're checking a match
@@ -94,11 +156,13 @@ export default function MemoryGameScreen() {
 
       if (isMatch) {
         // Mark both cards as matched
-        setCards(prevCards =>
-          prevCards.map(card =>
+        setCards(prevCards => {
+          const updatedCards = prevCards.map(card =>
             card.pairId === firstCard.pairId ? { ...card, isMatched: true } : card
-          )
-        );
+          );
+          updateMatchedPairs(updatedCards);
+          return updatedCards;
+        });
         setFlippedCards([]); // Reset flipped cards
       } else {
         // Cards don't match - flip them back after delay
@@ -136,6 +200,16 @@ export default function MemoryGameScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Progress Tracker */}
+      <View style={styles.progressContainer}>
+        <Text style={styles.progressText}>
+          {matchedPairs}/10 matches
+        </Text>
+        <View style={styles.progressBarContainer}>
+          <View style={[styles.progressBar, { width: `${progress * 100}%` }]} />
+        </View>
+      </View>
+
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -153,6 +227,30 @@ export default function MemoryGameScreen() {
           ))}
         </View>
       </ScrollView>
+
+      <ConfettiCannon
+        ref={confettiRef}
+        count={200}
+        origin={{x: -10, y: 0}}
+        autoStart={false}
+        fadeOut={true}
+      />
+
+      {showCelebration && (
+        <View style={styles.celebrationOverlay}>
+          <View style={styles.celebrationContent}>
+            <Text style={styles.celebrationEmoji}>🎉</Text>
+            <Text style={styles.celebrationEmoji}>🌟</Text>
+            <Text style={styles.celebrationEmoji}>🎈</Text>
+            <TouchableOpacity
+              style={styles.replayButton}
+              onPress={resetGame}
+            >
+              <Text style={styles.replayIcon}>🔄</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -191,5 +289,70 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#E53E3E',
     marginTop: 20,
+  },
+  progressContainer: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  progressText: {
+    fontSize: 20,
+    marginBottom: 8,
+    fontFamily: Platform.select({
+      ios: 'Chalkboard SE',
+      android: 'Comic Sans MS',
+      default: 'System'
+    }),
+    color: '#2D3748',
+  },
+  progressBarContainer: {
+    width: '80%',
+    height: 12,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#4FD1C5',
+    borderRadius: 6,
+  },
+  celebrationOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  celebrationContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  celebrationEmoji: {
+    fontSize: 64,
+    marginVertical: 10,
+  },
+  replayButton: {
+    marginTop: 30,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#4FD1C5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  replayIcon: {
+    fontSize: 40,
   },
 }); 
