@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { getVocabularyWords } from '../lib/getVocabularyWords';
+import MemoryCard from '../components/MemoryCard';
 
 // Fisher-Yates shuffle algorithm
 const shuffleArray = (array) => {
@@ -60,6 +61,10 @@ export default function MemoryGameScreen() {
     loadVocabularyCards();
   }, []);
 
+  const handleCardPress = (card) => {
+    console.log(card);
+  };
+
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -77,11 +82,20 @@ export default function MemoryGameScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>
-        Memory Game Screen — {cards.length} cards loaded
-      </Text>
-    </View>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.gridContainer}>
+        {cards.map(card => (
+          <MemoryCard
+            key={card.id}
+            word={card.word}
+            language={card.language}
+            isFlipped={card.isFlipped}
+            isMatched={card.isMatched}
+            onPress={() => handleCardPress(card)}
+          />
+        ))}
+      </View>
+    </ScrollView>
   );
 }
 
@@ -92,8 +106,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  text: {
-    fontSize: 18,
-    textAlign: 'center',
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    gap: 8, // Adds even spacing between cards
   },
 }); 
