@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./screens/Login";
 import Learning from "./screens/Learning";
 import Quiz from "./screens/Quiz";
+import MemoryGameScreen from "./screens/MemoryGameScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,7 @@ export default function App() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Learning" component={Learning} />
         <Stack.Screen name="Quiz" component={Quiz} />
+        <Stack.Screen name="MemoryGame" component={MemoryGameScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
