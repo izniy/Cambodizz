@@ -14,8 +14,10 @@ const shuffleArray = (array) => {
 
 export default function MemoryGameScreen() {
   const [cards, setCards] = useState([]);
+  const [flippedCards, setFlippedCards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isCheckingMatch, setIsCheckingMatch] = useState(false);
 
   useEffect(() => {
     async function loadVocabularyCards() {
@@ -61,8 +63,57 @@ export default function MemoryGameScreen() {
     loadVocabularyCards();
   }, []);
 
-  const handleCardPress = (card) => {
-    console.log(card);
+  const handleCardPress = (pressedCard) => {
+    // Ignore if card is already flipped, matched, or we're checking a match
+    if (pressedCard.isFlipped || pressedCard.isMatched || isCheckingMatch) {
+      return;
+    }
+
+    // Ignore if already have 2 cards flipped
+    if (flippedCards.length >= 2) {
+      return;
+    }
+
+    // Flip the card
+    const updatedCards = cards.map(card =>
+      card.id === pressedCard.id ? { ...card, isFlipped: true } : card
+    );
+    setCards(updatedCards);
+
+    const newFlippedCards = [...flippedCards, pressedCard];
+    setFlippedCards(newFlippedCards);
+
+    // Check for match if we now have 2 cards flipped
+    if (newFlippedCards.length === 2) {
+      const [firstCard, secondCard] = newFlippedCards;
+      
+      // Check if cards match (same pairId but different languages)
+      const isMatch = firstCard.pairId === secondCard.pairId && 
+                     firstCard.language !== secondCard.language;
+
+      if (isMatch) {
+        // Mark both cards as matched
+        const matchedCards = cards.map(card =>
+          card.pairId === firstCard.pairId ? { ...card, isMatched: true } : card
+        );
+        setCards(matchedCards);
+        setFlippedCards([]); // Reset flipped cards
+      } else {
+        // Cards don't match - flip them back after delay
+        setIsCheckingMatch(true); // Prevent new cards from being flipped
+        setTimeout(() => {
+          setCards(prevCards =>
+            prevCards.map(card =>
+              card.id === firstCard.id || card.id === secondCard.id
+                ? { ...card, isFlipped: false }
+                : card
+            )
+          );
+          setFlippedCards([]); // Reset flipped cards
+          setIsCheckingMatch(false); // Re-enable card flipping
+        }, 800);
+      }
+    }
   };
 
   if (isLoading) {
@@ -116,6 +167,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
-    gap: 8, // Adds even spacing between cards
+    gap: 8,
   },
 }); 
