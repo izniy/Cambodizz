@@ -23,4 +23,9 @@ values
   ('Sun', 'Atai', 'https://via.placeholder.com/100'),
   ('Tree', 'Dah', 'https://via.placeholder.com/100'),
   ('Bird', 'Tik', 'https://via.placeholder.com/100'),
-  ('Fire', 'Phlai', 'https://via.placeholder.com/100'); 
+  ('Fire', 'Phlai', 'https://via.placeholder.com/100'),
+  ('Dog', 'Chkae', 'https://via.placeholder.com/100'),
+  ('Rice', 'Bay', 'https://via.placeholder.com/100'),
+  ('House', 'Phteah', 'https://via.placeholder.com/100'),
+  ('Fish', 'Trey', 'https://via.placeholder.com/100'),
+  ('Book', 'Seavphov', 'https://via.placeholder.com/100'); 
